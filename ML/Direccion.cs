@@ -14,6 +14,6 @@ namespace ML
         public string NumeroExterior { get; set; }
         public ML.Usuario Usuario { get; set; }
         public ML.Colonia Colonia { get; set; }
-        //public List<object> Direcciones { get; set; }
+        public List<object> Direcciones { get; set; }
     }
 }

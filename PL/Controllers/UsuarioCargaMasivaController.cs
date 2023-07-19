@@ -27,7 +27,7 @@ namespace PL.Controllers
         public IActionResult PostCargarMasiva(IFormFile file)
         {
             //valida que el documento venga nullo o en caso de haber un archivo leera la longitud del archivo
-            if(file == null || file.Length <= 0)
+            if (file == null || file.Length <= 0)
             {
                 return RedirectToAction("GetCargaMasiva");
             }
@@ -76,7 +76,7 @@ namespace PL.Controllers
                     if (result.Correct)
                     {
                         result.Objects = new List<object>();
-                        foreach(ML.Usuario row in result.Objects)
+                        foreach (ML.Usuario row in result.Objects)
                         {
                             usuario.UserName = row.UserName;
                             usuario.Nombre = row.Nombre;
@@ -99,44 +99,45 @@ namespace PL.Controllers
                     }
                     else
                     {
-                        
+
                     }
                 }
             }
-                return RedirectToAction("GetCargaMasiva");
+            return RedirectToAction("GetCargaMasiva");
         }
 
         [HttpPost]
         public IActionResult GetCargaMasiva(int? valor)
         {
             IFormFile file = Request.Form.Files["file"];
-            if(HttpContext.Session.GetString("PathArchivo") == null)
+            if (HttpContext.Session.GetString("PathArchivo") == null)
             {
-                if(file != null)
+                if (file != null)
                 {
                     string fileName = Path.GetFileName(file.FileName);
                     string extensionArchivo = Path.GetExtension(file.FileName).ToLower();
-                    string extensionAceptada = configuration["TipoExcel"]; 
+                    string extensionAceptada = configuration["TipoExcel"];
                     string folderPath = configuration["PathFolder:ruta"];
-                    if(extensionArchivo == extensionAceptada)
+                    if (extensionArchivo == extensionAceptada)
                     {
                         string filePath = Path.Combine(environment.ContentRootPath, folderPath, Path.GetFileNameWithoutExtension(fileName)) + '-' + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
-                        if(!System.IO.File.Exists(filePath))
+
+                        if (!System.IO.File.Exists(filePath))
                         {
                             using (FileStream stream = new FileStream(filePath, FileMode.Create))
                             {
-                               file.CopyTo(stream);
+                                file.CopyTo(stream);
                             }
 
                             string connString = configuration["ExcelConString:value"] + filePath;
 
                             ML.Result resultExcelDt = BL.Usuario.ConvertExcelToDataTable(connString);
 
-                            if(resultExcelDt.Correct)
+                            if (resultExcelDt.Correct)
                             {
                                 ML.Result resultValidacion = BL.Usuario.ValidarExcel(resultExcelDt.Objects);
 
-                                if(resultValidacion.Objects.Count == 0)
+                                if (resultValidacion.Objects.Count == 0)
                                 {
                                     resultValidacion.Correct = true;
                                     HttpContext.Session.SetString("PathArchivo", filePath);
@@ -160,7 +161,7 @@ namespace PL.Controllers
             else
             {
                 string rutaArchivoExcel = HttpContext.Session.GetString("PathArchivo");
-                string connectionString = configuration["ExcelConString"] + rutaArchivoExcel;
+                string connectionString = configuration["ExcelConString:value"] + rutaArchivoExcel;
 
                 ML.Result resultData = BL.Usuario.ConvertExcelToDataTable(connectionString);
                 if (resultData.Correct)
@@ -170,6 +171,7 @@ namespace PL.Controllers
                     foreach (ML.Usuario usuarioItem in resultData.Objects)
                     {
                         ML.Result resultAdd = BL.Usuario.UsuarioAdd(usuarioItem);
+                        
                         if (!resultAdd.Correct)
                         {
                             resultErrores.Objects.Add("No se inserto el usuario con username: " + usuarioItem.UserName + "Error: " + resultAdd.ErrorMessage);
@@ -177,7 +179,7 @@ namespace PL.Controllers
                     }
                     if (resultErrores.Objects.Count > 0)
                     {
-                        string fileError = Path.Combine(environment.WebRootPath, @"~\Files\logErrores.txt");
+                        string fileError = Path.Combine(environment.WebRootPath, @"C:\Users\digis\Documents\Adriana_Maldonado_Martinez\AMaldonadoProgramacionNCapasCore\PL\wwwroot\ErroresTXT\Errores_Usuario.txt");
                         using (StreamWriter writer = new StreamWriter(fileError))
                         {
                             foreach (string ln in resultErrores.Objects)
@@ -192,9 +194,8 @@ namespace PL.Controllers
                         ViewBag.Message = "Los usuarios se registraron correctamente";
                     }
                 }
+                return View("GetCargaMasiva");
             }
-            return View();
         }
-
     }
 }

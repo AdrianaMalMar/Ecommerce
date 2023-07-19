@@ -167,8 +167,14 @@ namespace BL
                                 usuario.Telefono = row[8].ToString();
                                 usuario.Celular = row[9].ToString();
                                 usuario.Curp = row[10].ToString();
-                                ML.Rol rol = new ML.Rol();
-                                rol.IdRol = int.Parse(row[11].ToString());
+                                usuario.Rol = new ML.Rol();
+                                usuario.Rol.IdRol = int.Parse(row[11].ToString());
+                                usuario.Direccion = new ML.Direccion();
+                                usuario.Direccion.Calle = row[12].ToString();
+                                usuario.Direccion.NumeroInterior = row[13].ToString();
+                                usuario.Direccion.NumeroExterior = row[14].ToString();
+                                usuario.Direccion.Colonia = new ML.Colonia();
+                                usuario.Direccion.Colonia.IdColonia = int.Parse(row[15].ToString());
 
                                 result.Objects.Add(usuario);
                             }
@@ -246,7 +252,6 @@ namespace BL
                 using(DL.AmaldonadoProgramacionNcapasContext context = new DL.AmaldonadoProgramacionNcapasContext())
                 {
                     var query = context.Usuarios.FromSqlRaw($"UsuarioGetById {IdUsuario}").AsEnumerable().FirstOrDefault();
-                    result.Objects = new List<object>();
                     if (query != null)
                     {
                         ML.Usuario usuario = new ML.Usuario();
@@ -267,6 +272,7 @@ namespace BL
                         usuario.Rol.IdRol = query.IdRol.Value;
                         usuario.Rol.Nombre = query.NombreRol;
                         usuario.Direccion = new ML.Direccion();
+                        usuario.Direccion.Calle = usuario.Direccion.Calle;
                         usuario.Direccion.Colonia = new ML.Colonia();
                         usuario.Direccion.Colonia.Nombre = query.NombreColonia;
                         usuario.Direccion.Colonia.Municipio = new ML.Municipio();
@@ -275,7 +281,6 @@ namespace BL
                         usuario.Direccion.Colonia.Municipio.Estado.Nombre = query.NombreEstado;
                         usuario.Direccion.Colonia.Municipio.Estado.Pais = new ML.Pais();
                         usuario.Direccion.Colonia.Municipio.Estado.Pais.Nombre = query.NombrePais;
-                        usuario.Status = query.Status.Value;
 
                         result.Object = usuario;
                         result.Correct = true;

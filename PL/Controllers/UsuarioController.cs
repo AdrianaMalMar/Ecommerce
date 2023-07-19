@@ -5,7 +5,7 @@ namespace PL.Controllers
     public class UsuarioController : Controller
     {
         [HttpGet]
-        public IActionResult GetAll()
+        public ActionResult GetAll()
         {
             ML.Usuario usuario = new ML.Usuario();
             usuario.Nombre = "";
@@ -25,7 +25,7 @@ namespace PL.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetAll(ML.Usuario usuarios)
+        public ActionResult GetAll(ML.Usuario usuarios)
         {
             ML.Result result = BL.Usuario.UsuarioGetAll(usuarios);
             ML.Result resultRol = BL.Rol.RolGetAll();
@@ -55,7 +55,7 @@ namespace PL.Controllers
         }
 
         [HttpGet]
-        public IActionResult Form(int? IdUsuario)
+        public ActionResult Form(int? IdUsuario)
         {
             ML.Result resultRol = BL.Rol.RolGetAll();
             ML.Result resultPais = BL.Pais.PaisGetAll();
@@ -84,6 +84,7 @@ namespace PL.Controllers
             else
             {
                 ML.Result result = BL.Usuario.UsuarioGetById(IdUsuario.Value);
+               
                 if (result.Correct)
                 {
                     usuario = (ML.Usuario)result.Object;
@@ -93,10 +94,10 @@ namespace PL.Controllers
                     usuario.Direccion.Colonia.Municipio = new ML.Municipio();
                     usuario.Direccion.Colonia.Municipio.Estado = new ML.Estado();
                     usuario.Direccion.Colonia.Municipio.Estado.Pais = new ML.Pais();
+                    usuario.Direccion.Colonia.Municipio.Estado.Pais.Paises = resultPais.Objects;
 
                     ML.Result resultEstado = BL.Estado.EstadoGetByIdPais(usuario.Direccion.Colonia.Municipio.Estado.Pais.IdPais);
-                    usuario.Direccion.Colonia.Municipio.Estado.Pais.Paises = resultEstado.Objects;
-
+                   
                     ViewBag.Titulo = "Actualizar";
                     ViewBag.Accion = "Actualizar";
                     return View(usuario);
@@ -111,7 +112,7 @@ namespace PL.Controllers
         }
 
         [HttpPost]
-        public IActionResult Form(ML.Usuario usuario)
+        public ActionResult Form(ML.Usuario usuario)
         {
             if (ModelState.IsValid) 
             {
@@ -199,7 +200,7 @@ namespace PL.Controllers
         }
 
         [HttpGet]
-        public IActionResult Delete(int IdUsuario)
+        public ActionResult Delete(int IdUsuario)
         {
             ML.Usuario usuario = new ML.Usuario();
             usuario.IdUsuario = Convert.ToInt32(usuario.IdUsuario);
