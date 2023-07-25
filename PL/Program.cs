@@ -14,9 +14,9 @@ builder.Services.AddSession(options =>
 });
 
 //validar lo que necesito
-builder.Services.AddControllers(
-        options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
-builder.Services.AddDistributedMemoryCache();
+//builder.Services.AddControllers(
+//        options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
+//builder.Services.AddDistributedMemoryCache();
 
 
 var app = builder.Build();

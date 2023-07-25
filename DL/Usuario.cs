@@ -41,8 +41,16 @@ public partial class Usuario
 
     //propiedades
     public string NombreRol { get; set; }
+    public int? IdDireccion { get; set; }
+    public string Calle { get; set; }
+    public string NumeroInterior { get; set; }
+    public string NumeroExterior { get; set; }
+    public int? IdColonia { get; set; }
     public string NombreColonia { get; set; }
+    public int? IdMunicipio { get; set; }
     public string NombreMunicipio { get; set; }
+    public int? IdEstado { get; set; }
     public string NombreEstado { get; set; }
+    public int? IdPais { get; set; }
     public string NombrePais { get; set; }
 }

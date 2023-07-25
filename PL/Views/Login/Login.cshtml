@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+<link rel="stylesheet" href="~/css/login.css" />
+
+<div class="form-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-offset-3 col-lg-6 col-md-offset-2 col-md-8">
+                <div class="form-container">
+                    <div class="form-icon">
+                        <i class="fa fa-user-circle"></i>
+                        <span class="signup"><a href="">Don't have account? Signup</a></span>
+                    </div>
+                    @using (Html.BeginForm("Login", "Login", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                    <div class="form-horizontal">
+                        <h3 class="title">Iniciar sesion</h3>
+                        <div class="form-group">
+                            <span class="input-icon"><i class="fa fa-envelope"></i></span>
+                            <input class="form-control" type="text" placeholder="Username" name="Username">
+                        </div>
+                        <div class="form-group">
+                            <span class="input-icon"><i class="fa fa-lock"></i></span>
+                            <input class="form-control" type="password" placeholder="Password" name="Password">
+                        </div>
+                        <button class="btn signin" type="submit">Ingresar</button>
+                        <span class="forgot-pass"><a href="#">Forgot Username/Password?</a></span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -30,10 +30,23 @@ namespace SL.Controllers
         }
 
         // GET api/<UsuarioController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet]
+        [Route("GetById/{idUsuario}")]
+        public IActionResult UsuarioGetById(int idUsuario)
         {
-            return "value";
+            ML.Usuario usuario = new ML.Usuario();
+            usuario.Rol = new ML.Rol();
+
+            ML.Result result = BL.Usuario.UsuarioGetById(idUsuario);
+
+            if(result.Correct)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // POST api/<UsuarioController>
@@ -55,9 +68,20 @@ namespace SL.Controllers
         }
 
         // PUT api/<UsuarioController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        [Route("UsuarioUpdate/{idUsuario}")]
+        public IActionResult UsuarioUpdate(int idUsuario, [FromBody] ML.Usuario usuario)
         {
+            ML.Result result = BL.Usuario.UsuarioUpdate(usuario);
+
+            if(result.Correct)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // DELETE api/<UsuarioController>/5

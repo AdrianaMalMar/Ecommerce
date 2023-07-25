@@ -42,7 +42,7 @@ namespace BL
             {
                 using(DL.AmaldonadoProgramacionNcapasContext context = new DL.AmaldonadoProgramacionNcapasContext())
                 {
-                    int query = context.Database.ExecuteSqlRaw($"UsuarioUpdate {usuario.IdUsuario},'{usuario.UserName}','{usuario.Nombre}','{usuario.ApellidoPaterno}','{usuario.ApellidoMaterno}','{usuario.Email}','{usuario.Contrasena}','{usuario.FechaNacimiento}','{usuario.Sexo}','{usuario.Telefono}','{usuario.Celular}','{usuario.Curp}',{usuario.Rol.IdRol}");
+                    int query = context.Database.ExecuteSqlRaw($"UsuarioUpdate '{usuario.UserName}','{usuario.Nombre}','{usuario.ApellidoPaterno}','{usuario.ApellidoMaterno}','{usuario.Email}','{usuario.Contrasena}','{usuario.FechaNacimiento}','{usuario.Sexo}','{usuario.Telefono}','{usuario.Celular}','{usuario.Curp}','{usuario.Imagen}',{usuario.Rol.IdRol},'{usuario.Direccion.Calle}',{usuario.Direccion.NumeroInterior},{usuario.Direccion.NumeroExterior},{usuario.Direccion.Colonia.IdColonia},{usuario.IdUsuario}");
                     if (query >= 1)
                     {
                         result.Correct = true;
@@ -252,6 +252,7 @@ namespace BL
                 using(DL.AmaldonadoProgramacionNcapasContext context = new DL.AmaldonadoProgramacionNcapasContext())
                 {
                     var query = context.Usuarios.FromSqlRaw($"UsuarioGetById {IdUsuario}").AsEnumerable().FirstOrDefault();
+                    result.Objects = new List<object>();
                     if (query != null)
                     {
                         ML.Usuario usuario = new ML.Usuario();
@@ -272,14 +273,21 @@ namespace BL
                         usuario.Rol.IdRol = query.IdRol.Value;
                         usuario.Rol.Nombre = query.NombreRol;
                         usuario.Direccion = new ML.Direccion();
-                        usuario.Direccion.Calle = usuario.Direccion.Calle;
+                        usuario.Direccion.IdDireccion = query.IdDireccion.Value;
+                        usuario.Direccion.Calle = query.Calle;
+                        usuario.Direccion.NumeroInterior = query.NumeroInterior;
+                        usuario.Direccion.NumeroExterior = query.NumeroExterior;
                         usuario.Direccion.Colonia = new ML.Colonia();
+                        usuario.Direccion.Colonia.IdColonia = query.IdColonia.Value;
                         usuario.Direccion.Colonia.Nombre = query.NombreColonia;
                         usuario.Direccion.Colonia.Municipio = new ML.Municipio();
+                        usuario.Direccion.Colonia.Municipio.IdMunicipio = query.IdMunicipio.Value;
                         usuario.Direccion.Colonia.Municipio.Nombre = query.NombreMunicipio;
                         usuario.Direccion.Colonia.Municipio.Estado = new ML.Estado();
+                        usuario.Direccion.Colonia.Municipio.Estado.IdEstado = query.IdEstado.Value;
                         usuario.Direccion.Colonia.Municipio.Estado.Nombre = query.NombreEstado;
                         usuario.Direccion.Colonia.Municipio.Estado.Pais = new ML.Pais();
+                        usuario.Direccion.Colonia.Municipio.Estado.Pais.IdPais = query.IdPais.Value;
                         usuario.Direccion.Colonia.Municipio.Estado.Pais.Nombre = query.NombrePais;
 
                         result.Object = usuario;
@@ -316,6 +324,36 @@ namespace BL
                 }
             }
             catch (Exception ex)
+            {
+                result.Correct = false;
+                result.Ex = ex;
+                result.Message = "Ocurrio un error" + ex.Message;
+            }
+            return result;
+        }
+
+        public static ML.Result UsernameGetById(string username)
+        {
+            ML.Result result = new ML.Result();
+            try
+            {
+                using (DL.AmaldonadoProgramacionNcapasContext context = new DL.AmaldonadoProgramacionNcapasContext())
+                {
+                    var query = context.Usuarios.FromSqlRaw($"UsernameGetById '{username}'").AsEnumerable().FirstOrDefault();
+
+                    if(query != null)
+                    {
+                        ML.Usuario usuario = new ML.Usuario(query.IdUsuario, query.UserName, query.Contrasena);
+                        result.Object = usuario;
+                        result.Correct = true;
+                    }
+                    else
+                    {
+                        result.Correct= false;
+                    }
+                }
+            }
+            catch(Exception ex)
             {
                 result.Correct = false;
                 result.Ex = ex;

@@ -1,27 +1,72 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace PL.Controllers
 {
     public class UsuarioController : Controller
     {
+        private IHostingEnvironment environment;
+        private IConfiguration configuration;
+        public UsuarioController(IHostingEnvironment _enviroment, IConfiguration _configuration)
+        {
+            environment = _enviroment;
+            configuration = _configuration;
+        }
+
+        //[HttpGet]
+        //public ActionResult GetAll()
+        //{
+        //    ML.Usuario usuario = new ML.Usuario();
+        //    usuario.Nombre = "";
+        //    usuario.ApellidoPaterno = "";
+        //    ML.Result result = BL.Usuario.UsuarioGetAll(usuario);
+            
+        //    if (result.Correct)
+        //    {
+        //        usuario.Usuarios = result.Objects;
+        //        return View(usuario);
+        //    }
+        //    else
+        //    {
+        //        ViewBag.Message = result.Message;
+        //        return View(usuario);
+        //    }
+        //}
+
         [HttpGet]
         public ActionResult GetAll()
         {
             ML.Usuario usuario = new ML.Usuario();
             usuario.Nombre = "";
             usuario.ApellidoPaterno = "";
-            ML.Result result = BL.Usuario.UsuarioGetAll(usuario);
             
-            if (result.Correct)
+            ML.Result resultUsuario = new ML.Result();
+            resultUsuario.Objects = new List<Object>();
+
+            using(HttpClient client = new HttpClient())
             {
-                usuario.Usuarios = result.Objects;
-                return View(usuario);
+                string webApi = configuration["webapi"];
+                client.BaseAddress = new Uri(webApi);
+
+                var responseTask = client.GetAsync("GetAll");
+                responseTask.Wait();
+
+                var result = responseTask.Result;
+
+               if(result.IsSuccessStatusCode)
+                {
+                    var readTask = result.Content.ReadAsAsync<ML.Result>();
+                    readTask.Wait();
+
+                    foreach(var resultItem in readTask.Result.Objects)
+                    {
+                        ML.Usuario resultItemList = Newtonsoft.Json.JsonConvert.DeserializeObject<ML.Usuario>(resultItem.ToString());
+                        resultUsuario.Objects.Add(resultItemList);
+                    }
+                }
+                usuario.Usuarios = resultUsuario.Objects;
             }
-            else
-            {
-                ViewBag.Message = result.Message;
-                return View(usuario);
-            }
+            return View(usuario);
         }
 
         [HttpPost]
@@ -89,14 +134,14 @@ namespace PL.Controllers
                 {
                     usuario = (ML.Usuario)result.Object;
                     usuario.Rol.Roles = resultRol.Objects;
-                    usuario.Direccion = new ML.Direccion();
-                    usuario.Direccion.Colonia = new ML.Colonia();
-                    usuario.Direccion.Colonia.Municipio = new ML.Municipio();
-                    usuario.Direccion.Colonia.Municipio.Estado = new ML.Estado();
-                    usuario.Direccion.Colonia.Municipio.Estado.Pais = new ML.Pais();
                     usuario.Direccion.Colonia.Municipio.Estado.Pais.Paises = resultPais.Objects;
 
                     ML.Result resultEstado = BL.Estado.EstadoGetByIdPais(usuario.Direccion.Colonia.Municipio.Estado.Pais.IdPais);
+                    usuario.Direccion.Colonia.Municipio.Estado.Estados = resultEstado.Objects;
+                    ML.Result resultMunicipio = BL.Municipio.MunicipioGetByIdEstado(usuario.Direccion.Colonia.Municipio.Estado.IdEstado);
+                    usuario.Direccion.Colonia.Municipio.Municipios = resultMunicipio.Objects;
+                    ML.Result resultColonia = BL.Colonia.ColoniaGetByIdMunicipio(usuario.Direccion.Colonia.Municipio.IdMunicipio);
+                    usuario.Direccion.Colonia.Colonias = resultColonia.Objects;
                    
                     ViewBag.Titulo = "Actualizar";
                     ViewBag.Accion = "Actualizar";
@@ -128,29 +173,27 @@ namespace PL.Controllers
                 
                 if (usuario.IdUsuario == 0)
                 {
-                    var result = BL.Usuario.UsuarioAdd(usuario);
-
-                    if (result.Correct)
+                    //var result = BL.Usuario.UsuarioAdd(usuario);
+                    ML.Result result = new ML.Result();
+                    using (HttpClient client = new HttpClient())
                     {
-                        ViewBag.Message = "El usuario se agrego correctamente";
-                        return PartialView("Modal");
-                    }
-                    else
-                    {
-                        ML.Result resultRol = BL.Rol.RolGetAll();
-                        ML.Result resultPais = BL.Pais.PaisGetAll();
+                        string webApi = configuration["webapi"];
+                        client.BaseAddress = new Uri(webApi);
 
-                        usuario.Rol = new ML.Rol();
-                        usuario.Direccion = new ML.Direccion();
-                        usuario.Direccion.Colonia = new ML.Colonia();
-                        usuario.Direccion.Colonia.Municipio = new ML.Municipio();
-                        usuario.Direccion.Colonia.Municipio.Estado = new ML.Estado();
-                        usuario.Direccion.Colonia.Municipio.Estado.Pais = new ML.Pais();
+                        Task<HttpResponseMessage> posTask = client.PostAsJsonAsync<ML.Usuario>("UsuarioAdd", usuario);
 
-                        usuario.Direccion.Colonia.Municipio.Estado.Pais.Paises = resultPais.Objects;
-                        usuario.Rol.Roles = resultRol.Objects;
-                        ViewBag.Message = result.Message;
-                        return View(usuario);
+                        posTask.Wait();
+                        HttpResponseMessage resultTask = posTask.Result;
+                        if (resultTask.IsSuccessStatusCode)
+                        {
+                            ViewBag.Message = "El usuario se agrego correctamente";
+                            return PartialView("Modal");
+                        }
+                        else
+                        {
+                            ViewBag.Message = "Error";
+                            return PartialView("Modal");
+                        }
                     }
                 }
                 else
@@ -193,18 +236,19 @@ namespace PL.Controllers
                 usuario.Direccion.Colonia.Municipio.Estado = new ML.Estado();
                 usuario.Direccion.Colonia.Municipio.Estado.Pais = new ML.Pais();
 
-                usuario.Direccion.Colonia.Municipio.Estado.Pais.Paises = resultPais.Objects;
                 usuario.Rol.Roles = resultRol.Objects;
-                return View();
+                usuario.Direccion.Colonia.Municipio.Estado.Pais.Paises = resultPais.Objects;
+
+                return View(usuario);
             }
         }
 
         [HttpGet]
-        public ActionResult Delete(int IdUsuario)
+        public ActionResult Delete(int? idUsuario)
         {
             ML.Usuario usuario = new ML.Usuario();
-            usuario.IdUsuario = Convert.ToInt32(usuario.IdUsuario);
-            var result = BL.Usuario.UsuarioDelete(usuario);
+            usuario.IdUsuario = Convert.ToInt32(idUsuario);
+            ML.Result result = BL.Usuario.UsuarioDelete(usuario);
 
             if (result.Correct)
             {
