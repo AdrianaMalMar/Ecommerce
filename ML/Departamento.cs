@@ -11,7 +11,7 @@ namespace ML
     {
         public int IdDepartamento { get; set; }
 
-        public Departamento(int idDepartamento, string nombre, int idArea, string nombreArea)
+        public Departamento(int idDepartamento, string nombre, int idArea)
         {
             IdDepartamento = idDepartamento;
             Nombre = nombre;

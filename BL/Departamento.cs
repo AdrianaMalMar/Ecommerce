@@ -25,7 +25,7 @@ namespace BL
                         foreach (var row in query)
                         {
                             //ML.Departamento departamento = new ML.Departamento(row.IdDepartamento, row.Nombre, row.IdArea, row.NombreArea);
-                            ML.Departamento departamento = new ML.Departamento(row.IdDepartamento, row.Nombre, row.IdArea, row.NombreArea);
+                            ML.Departamento departamento = new ML.Departamento(row.IdDepartamento, row.Nombre, row.IdArea);
                             //departamento.Area = new ML.Area(row.IdArea, row.NombreArea);
                             //ML.Departamento departamento = new ML.Departamento();
                             //departamento.IdDepartamento = row.IdDepartamento;
@@ -68,7 +68,7 @@ namespace BL
 
                             departamento.Area = new ML.Area();
                             departamento.Area.IdArea = row.IdArea;
-                            departamento.Area.Nombre = row.NombreArea;
+                            //departamento.Area.Nombre = row.NombreArea;
 
                             result.Objects.Add(departamento);
 
