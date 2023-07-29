@@ -25,6 +25,8 @@ public partial class AmaldonadoProgramacionNcapasContext : DbContext
 
     public virtual DbSet<Estado> Estados { get; set; }
 
+    public virtual DbSet<MetodoPago> MetodoPagos { get; set; }
+
     public virtual DbSet<Municipio> Municipios { get; set; }
 
     public virtual DbSet<Pai> Pais { get; set; }
@@ -38,6 +40,8 @@ public partial class AmaldonadoProgramacionNcapasContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     public virtual DbSet<UsuarioEliminado> UsuarioEliminados { get; set; }
+
+    public virtual DbSet<VentaProducto> VentaProductos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
@@ -130,6 +134,17 @@ public partial class AmaldonadoProgramacionNcapasContext : DbContext
                 .HasForeignKey(d => d.IdPais)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Pais");
+        });
+
+        modelBuilder.Entity<MetodoPago>(entity =>
+        {
+            entity.HasKey(e => e.IdMetodoPago).HasName("PK__MetodoPa__6F49A9BE195542E9");
+
+            entity.ToTable("MetodoPago");
+
+            entity.Property(e => e.Metodo)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Municipio>(entity =>
@@ -276,6 +291,17 @@ public partial class AmaldonadoProgramacionNcapasContext : DbContext
             entity.Property(e => e.UserName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VentaProducto>(entity =>
+        {
+            entity.HasKey(e => e.IdVentaProducto).HasName("PK__VentaPro__E4CB50990EA6E0A2");
+
+            entity.ToTable("VentaProducto");
+
+            entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.VentaProductos)
+                .HasForeignKey(d => d.IdProducto)
+                .HasConstraintName("FK_Producto");
         });
 
         OnModelCreatingPartial(modelBuilder);

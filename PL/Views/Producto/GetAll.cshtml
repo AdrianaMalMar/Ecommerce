@@ -1,0 +1,95 @@
+﻿@model ML.Producto
+@{
+    ViewData["Title"] = "GetAll";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Productos</h2>
+<p>Modulo de producto</p>
+<p>El boton verde para buscar</p>
+<h5>Seleccione un producto para agregarlo al carrito</h5>
+<br />
+
+<link rel="stylesheet" href="~/css/estiloCard.css" />
+
+@Html.ActionLink("Agregar","Form","Producto", htmlAttributes: new { @class = "btn btn-success" })
+<br />
+<br />
+@using (Html.BeginForm("GetAll", "Producto", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-group mb-3">
+                    <span class="input-group-text"><i class="bi bi-shop-window"></i></span>
+                    @Html.DropDownListFor(model => model.Departamento.Area.IdArea, new SelectList(Model.Departamento.Area.Areas, "IdArea", "Nombre"), "Selecciona una opcion", new { @class = "form-control" , @id="ddlArea" })
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="input-group mb-4">
+                    <span class="input-group-text"><i class="bi bi-bag-check-fill"></i></span>
+                    @Html.DropDownListFor(model => model.Departamento.IdDepartamento, new SelectList(Model.Departamento.Departamentos, "IdDepartamento", "Nombre"), "Selecciona una opcion", new { @class = "form-control" , @id="ddlDepartamento"})
+                </div>
+            </div>
+            <div class="col-md-4">
+                <input type="submit" value="Buscar" class="btn btn-info" />
+            </div>
+        </div>
+    </div>
+}
+
+<br />
+
+<div class="container mt-2">
+    <div class="row">
+        @if (Model.Productos != null)
+        {
+            @foreach (ML.Producto producto in Model.Productos)
+            {
+                <div class="col-md-3 col-sm-6">
+                    <div class="card card-block">
+                        <span class="card-title text-right">
+                            <a href="@Url.Action("CartPost", "VentaProducto", new { IdProducto = producto.IdProducto, Nombre = producto.Nombre, Precio = producto.PrecioUnitario })"><i class="bi bi-cart-plus" style="color: #00d227; "></i></a>
+                        </span>
+                        <img src="https://static.pexels.com/photos/7096/people-woman-coffee-meeting.jpg" alt="Photo of sunset">
+                        <h1 class="card-title mt-3 mb-3 text-center">@producto.Nombre</h1>
+                        <p class="card-text">@producto.Descripcion</p>
+                        <p class="card-text text-center">$@producto.PrecioUnitario</p>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+
+
+
+@section scripts{
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lsjky0/srum9be3dpm+c4fbo1dky2v27gdjm2uozal0=" crossorigin="anonymous">
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#ddlArea").change(function () {
+            $("#ddlDepartamento").empty();
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetDepartamento")',
+                dataType: 'json',
+                data: { idArea: $("#ddlArea").val() },
+                success: function (departamento) {
+                    $("#ddlDepartamento").append('<option value="0">' + 'Seleccione una opción' + '</option>');
+                    $.each(departamento, function (i, departamento) {
+                        $("#ddlDepartamento").append('<option value="'
+                            + departamento.idDepartamento + '">'
+                            + departamento.nombre + '</option>');
+                    });
+                },
+                error: function (ex) {
+                    alert('Failed' + ex);
+                }
+            });
+        });
+    });
+</script>
+}

@@ -104,7 +104,7 @@ namespace BL
                             usuario.ApellidoMaterno = row.ApellidoMaterno;
                             usuario.Email = row.Email;
                             usuario.Contrasena = row.Contrasena;
-                            usuario.FechaNacimiento = row.FechaNacimiento.ToString("dd/MM/yyyy");
+                            usuario.FechaNacimiento = row.FechaNacimiento.Value.ToString("dd/MM/yyyy");
                             usuario.Sexo = row.Sexo;
                             usuario.Telefono = row.Telefono;
                             usuario.Celular = row.Celular;

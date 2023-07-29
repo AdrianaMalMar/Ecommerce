@@ -24,4 +24,12 @@ public partial class Producto
     public virtual Departamento IdDepartamentoNavigation { get; set; } = null!;
 
     public virtual Proveedor IdProveedorNavigation { get; set; } = null!;
+
+    public virtual ICollection<VentaProducto> VentaProductos { get; set; } = new List<VentaProducto>();
+
+    //Propiedad de navegacion Producto
+    public string Telefono { get; set; }
+    public string NombreDepartamento { get; set; }
+    public int IdArea { get; set; }
+    public string NombreArea { get; set; }
 }
